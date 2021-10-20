@@ -3,8 +3,8 @@
 
 import socket, sys, select
 
-zenbakiak = [0,1,2,3,4]
-testuak = ["Irten","Eguzki-plakak","Bateria kargak","Propultzailea","Sentsore datuak"]
+zenbakiak = [0,1,2,3,4,5,6]
+testuak = ["Irten","Erradiadoreen zerrenda lortu","Piztu erradiadorea/k","Itzali erradiadorea/k","Uneko hozberoaren eskaera","Desio den hozberoa zenbatekoa den eskuratzeko", "Desio den hozberoaren zenbatekoa aldatzeko"]
 mez_tam = 1024
 Xkodea = 11111
 
@@ -12,7 +12,7 @@ Xkodea = 11111
 #menua
 def menua():
 	print("");
-	print("ZundaAPP 2018 (c)")
+	print("Erradiadore Sistema")
 	print("Sakatu egin nahi dezun ekintzaren zenbakia:")
 	for i in range(0, len(zenbakiak)):
 		print("  --  "+str(zenbakiak[i]) + " -- " + testuak[i]+".")
