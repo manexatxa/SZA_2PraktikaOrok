@@ -5,15 +5,15 @@ import socket, sys, select
 
 zenbakiak = [0,1,2,3,4,5,6]
 testuak = ["Irten","Erradiadoreen zerrenda lortu","Piztu erradiadorea/k","Itzali erradiadorea/k","Uneko hozberoaren eskaera","Desio den hozberoa zenbatekoa den eskuratzeko", "Desio den hozberoaren zenbatekoa aldatzeko"]
-mez_tam = 1024
+mez_tam = 1500
 Xkodea = 11111
 
 
 #menua
 def menua():
 	print("");
-	print("Erradiadore Sistema")
-	print("Sakatu egin nahi dezun ekintzaren zenbakia:")
+	print("ERRADIADORE SISTEMA")
+	print("Sartu egin nahi duzun ekintzaren zenbakia:")
 	for i in range(0, len(zenbakiak)):
 		print("  --  "+str(zenbakiak[i]) + " -- " + testuak[i]+".")
 
@@ -30,9 +30,9 @@ def erroreakTratatu(e):
 	elif( e == 5 ):
 		print("Segurtasun kode okerra.")
 	elif( e == 11 ):
-		print("Eguzki plakak zabaltzea ezinezkloa da.")
+		print("Erradiadorea/k ez da/dira piztea lortu.")
 	elif( e == 12 ):
-		print("Ekintza hau aurretik eginda dago.")
+		print("Erradiadorea/k ez da/dira itzaltzea lortu.")
 	elif( e == 21 ):
 		print("Ezinezkoa da bateriaren karga eskuratzea.")
 	elif( e == 31 ):
@@ -46,11 +46,11 @@ def erroreakTratatu(e):
 	print("Saiatu berriro.")
 
 #Eguzki-plakak zabaltzeko eta tolesteko metodoa.
-def eguzkiPlakak(s):
+def erradiadoreZerrenda(s):
 	parametroEgokiak = False;
 	# Eguzki-plakak zabaldu edo tolestu piztu nahi den galdetzen da.
 	while parametroEgokiak == False :
-		print("Eguzki-plakak ireki zabaldu edo tolestu nahi dituzu?");
+		print("Erradiadore zerrenda:");
 		print("Zabaldu. Sartu 0 zenbakia");
 		print("Tolestu. Sartu 1 zenbakia");
         #Aukeratutako zenbakia
@@ -98,51 +98,59 @@ def eguzkiPlakak(s):
 
 
 # Baterien karga jasotzeko metodoa.
-def bateriaKargak(s):
-	segurtasun_kodea = "";
+def piztuErradiadorea(s):
+	erradiadore_id = input("Sartu erradiadorearen id-a:(hutsa denak pizteko)\n");
 	#Segurtasun-kodearen konprobaketa
-	kodeOkerra = True;
-	while kodeOkerra:
-		try:
-            #Segurtasun-kodea sartu
-			segurtasun_kodea = int (input("Sartu segurtasun_kodea (5 digitu): "));
-            #Segurtasun-kodea konprobatu
-			if segurtasun_kodea == Xkodea: 					
-					kodeOkerra = False;
-			else:
-				print("Segurtasun-kodea okerra. Saiatu berriro:");
-		except ValueError:
-			print("segurtasun-kodea okerra. Saiatu berriro:");
-    #BATT komandoa + segurtasun kodea
-	komandoa = "BATT" + str(segurtasun_kodea);
+	komandoa = "ONN" + str(erradiadore_id);
     #Guztia bidali
 	s.sendall(komandoa.encode('ascii'));
     #Erantzuna jaso
 	erantzuna = s.recv( mez_tam ).decode('ascii');
 	# Erantzuna aztertzen da ("OK" erantzun egokia eta "ER" erantzun okerra beraz, errore kudeaketa)
 	if erantzuna[0:2] == "OK":
-        #Erantzuna gorde, OK gabe
-		erantzuna = erantzuna[2:];
-        #Erantzuna banatu split-ren bidez
-		ehunekoa = erantzuna.split(":");
-		print("Baterien karga honako hau da:");
-        #Bateriaren karga pantailaratzeko moduan jartzeko
-		for i in range(0, len(ehunekoa)):
-			ehunekoa = ehunekoa[i]
-			print("%"+ ehunekoa[0] + ehunekoa[1] + "," + ehunekoa[2]);
+		print("Erradiadorea egoki piztu da.");
+    
 	elif erantzuna[0:2] == "ER":
 		errore = erantzuna[2:]
 		# Errore-metodoari deitu dagokion errore-kodearekin.
 		try:
 			erroreakTratatu(int(errore));
 		except ValueError:
-			print("Protokolo errore bat egon da1.");
+			print("Protokolo errore bat egon da.");
 	else:
-		print("Protokolo errore bat egon da2.");
+		print("Protokolo errore bat egon da.");
 
+# Baterien karga jasotzeko metodoa.
+def itzaliErradiadorea(s):
+	erradiadore_id = input("Sartu erradiadorearen id-a: (hutsa denak itzaltzeko)\n");
+	#Segurtasun-kodearen konprobaketa
+	komandoa = "OFF" + str(erradiadore_id);
+    #Guztia bidali
+	s.sendall(komandoa.encode('ascii'));
+    #Erantzuna jaso
+	erantzuna = s.recv( mez_tam ).decode('ascii');
+	# Erantzuna aztertzen da ("OK" erantzun egokia eta "ER" erantzun okerra beraz, errore kudeaketa)
+	if erantzuna[0:2] == "OK":
+		print("Erradiadorea egoki itzali da.");
+    
+	elif erantzuna[0:2] == "ER":
+		errore = erantzuna[2:]
+		# Errore-metodoari deitu dagokion errore-kodearekin.
+		try:
+			erroreakTratatu(int(errore));
+		except ValueError:
+			print("Protokolo errore bat egon da.");
+	else:
+		print("Protokolo errore bat egon da.");
 
 #Propultsaile bat denbora-tarte mugatu batean martxan jartzeko metodoa
-def propultzailea(s):
+def unekoHozberoEskaera():
+	erradiadore_id = input("Sartu erradiadorearen id-a:(hutsa denak pizteko)\n");
+	#Segurtasun-kodearen konprobaketa
+	komandoa = "NOW" + str(erradiadore_id);
+	s.sendall(komandoa.encode('ascii'));
+	erantzuna = s.recv(mez_tam).decode('ascii');
+	print(erantzuna);
 	#Lehenik propultsailea hautatu (Digitu bat)
 	propultsaileaHautatua = "";
 	propultsaileEgokia = False;
@@ -206,7 +214,6 @@ def propultzailea(s):
 
 #Sentsoreen neurketen datuak jasotzeko metodoa.
 def sentsoreDatuak(s):
-	segurtasun_kodea = "";
 	#Segurtasun-kodearen konprobaketa
 	kodeOkerra = True;
 	while kodeOkerra:
@@ -241,6 +248,8 @@ def sentsoreDatuak(s):
 	else:
 		print("Protokolo errore bat egon da2.");
 
+
+
 #Programa nagusia. Programa izena, zerbitzaria eta portua beharrezkoak dira
 if __name__ == "__main__":
 	if len( sys.argv ) != 3:
@@ -261,15 +270,19 @@ if __name__ == "__main__":
 				s.close();
 				exit(0);
 			elif aukera == "1":
-				eguzkiPlakak(s);
+				erradiadoreZerrenda(s);
 			elif aukera == "2":
-				bateriaKargak(s);
+				piztuErradiadorea(s);
 			elif aukera == "3":
 				propultzailea(s);
 			elif aukera == "4":
 				sentsoreDatuak(s);
-			else: 
-				print("Zenbaki desegokia sartu duzu.")
+			elif aukera == "5":
+				propultzailea(s);
+			elif aukera == "6":
+				propultzailea(s);
+			else:
+				print("Sartu duzun zenbakia ez da egokia:")
 				print("Saiatu berriro:");				
 		s.close()
 
